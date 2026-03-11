@@ -1,15 +1,16 @@
 #include "gpio.hpp"
+#include "stm32f072xb.h"
 
-int main() {
+constexpr int LED_PIN = 5;
 
+auto main() -> int {
     gpio::enable_port_a();
-    gpio::set_output(GPIOA, 5);
+    gpio::set_output(GPIOA, LED_PIN);
 
-    while (1) {
+    while (true) {
+        gpio::toggle(GPIOA, LED_PIN);
 
-        gpio::toggle(GPIOA, 5);
-
-        for (volatile int i = 0; i < 500000; i++)
-            ;
+        for (volatile int i = 0; i < 500000; ++i) {
+        }
     }
 }
