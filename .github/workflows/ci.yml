@@ -11,26 +11,35 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - name: Install toolchain
+    - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install gcc-arm-none-eabi cmake cppcheck clang-tidy
-
-    - name: Configure
-      run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=toolchain/arm-gcc-toolchain.cmake
-
-    - name: Build
-      run: cmake --build build
-
+        sudo apt install \
+          gcc-arm-none-eabi \
+          cmake \
+          cppcheck \
+          clang-tidy \
+          clang-format
+    
     - name: Check code formatting without modifying files if errors are found
-      run: clang-format -n --Werror src/*.cpp include/*.hpp
+      run: |
+        clang-format -n --Werror src/*.cpp include/*.hpp
 
     - name: Static analysis with cppcheck
       run: ./scripts/static_analysis.sh
 
-    - name: Upload firmware
+    - name: Configure CMake
+      run: |
+        cmake -B build \
+        -DCMAKE_TOOLCHAIN_FILE=toolchain/arm-gcc-toolchain.cmake
+
+    - name: Build firmware
+      run: cmake --build build
+
+    - name: Upload firmware artifact
       uses: actions/upload-artifact@v4
       with:
         name: firmware
