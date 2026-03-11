@@ -22,22 +22,29 @@ jobs:
           cmake \
           cppcheck \
           clang-tidy \
+          clang-tools \
           clang-format
     
     - name: Check code formatting without modifying files if errors are found
       run: |
-        clang-format -n --Werror src/*.cpp include/*.hpp
+        clang-format -n --Werror $(find src include -name "*.cpp" -o -name "*.hpp")
 
     - name: Static analysis with cppcheck
-      run: ./scripts/static_analysis.sh
+      run: |
+        ./scripts/static_analysis.sh
 
     - name: Configure CMake
       run: |
         cmake -B build \
         -DCMAKE_TOOLCHAIN_FILE=toolchain/arm-gcc-toolchain.cmake
 
+    - name: Run clang-tidy
+      run: |
+        run-clang-tidy -p build -quiet
+
     - name: Build firmware
-      run: cmake --build build
+      run: |
+        cmake --build build
 
     - name: Upload firmware artifact
       uses: actions/upload-artifact@v4

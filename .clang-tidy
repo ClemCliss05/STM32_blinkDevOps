@@ -1,9 +1,17 @@
 Checks: >
-  clang-analyzer-*,
   bugprone-*,
+  clang-analyzer-*,
   performance-*,
   readability-*,
-  modernize-*
+  modernize-*,
+  portability-*
 
-WarningsAsErrors: "*"
-HeaderFilterRegex: "src/|include/"
+WarningsAsErrors: >
+  bugprone-*,
+  clang-analyzer-*
+
+HeaderFilterRegex: 'src/.*|include/.*'
+
+CheckOptions:
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
