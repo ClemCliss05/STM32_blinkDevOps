@@ -31,7 +31,7 @@ Example using J-Link:
 
  ## Project Structure
 
-- drivers/     CMSIS and device headers  
+- Drivers/     CMSIS and device headers  
 - src/         firmware source  
 - startup/     startup assembly  
 - linker/      linker script  
