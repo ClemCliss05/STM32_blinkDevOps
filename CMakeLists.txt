@@ -3,19 +3,29 @@ cmake_minimum_required(VERSION 3.20)
 project(STM32_blinkDevOps C CXX ASM)
 
 # ------------------------------------------------------------------------------
-# Set flags
+# Project configuration
 # ------------------------------------------------------------------------------
 
 set(PROJECT_NAME STM32_blinkDevOps)
+
+include(cmake/stm32_flags.cmake) # Include MCU-specific flags
 
 set(LINKER_SCRIPT
     ${CMAKE_SOURCE_DIR}/linker/STM32F072RBTx_FLASH.ld
 )
 
-set(MCU_FLAGS
-    -mcpu=cortex-m0
-    -mthumb
-)
+set(CMAKE_BUILD_TYPE Debug) # Use Debug for development to include debug symbols and disable optimizations
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # Export compile commands for Clang-tidy
+
+find_program(CLANG_TIDY_EXE clang-tidy) # Check if clang-tidy is available
+if(CLANG_TIDY_EXE) # If clang-tidy is found, set it up for C++ files
+    set(CMAKE_CXX_CLANG_TIDY
+        ${CLANG_TIDY_EXE};
+        -p=${CMAKE_BINARY_DIR} # Use the compile_commands.json for clang-tidy
+        --warnings-as-errors=*
+    )
+endif()
 
 # ------------------------------------------------------------------------------
 # MCU configuration library
@@ -47,8 +57,9 @@ target_link_libraries(${PROJECT_NAME}.elf PRIVATE
 
 target_sources(${PROJECT_NAME}.elf PRIVATE
     src/main.cpp
+    src/gpio.cpp
     startup/startup_stm32f072xb.s
-    drivers/CMSIS/Device/ST/STM32F0xx/Source/system_stm32f0xx.c
+    Drivers/CMSIS/Device/ST/STM32F0xx/Source/system_stm32f0xx.c
 )
 
 # ------------------------------------------------------------------------------
@@ -56,8 +67,9 @@ target_sources(${PROJECT_NAME}.elf PRIVATE
 # ------------------------------------------------------------------------------
 
 target_include_directories(${PROJECT_NAME}.elf PRIVATE
-    drivers/CMSIS/Include
-    drivers/CMSIS/Device/ST/STM32F0xx/Include
+    include
+    Drivers/CMSIS/Include
+    Drivers/CMSIS/Device/ST/STM32F0xx/Include
 )
 
 # ------------------------------------------------------------------------------
@@ -73,13 +85,7 @@ target_compile_definitions(${PROJECT_NAME}.elf PRIVATE
 # ------------------------------------------------------------------------------
 
 target_compile_options(${PROJECT_NAME}.elf PRIVATE
-    -Wall # enable all warnings
-    -Wextra # enable extra warnings
-    -Wpedantic # enforce strict ISO compliance
-
-    -O2 # optimize for size and speed
-    -ffunction-sections # place each function in its own section for better dead code elimination
-    -fdata-sections # place each data item in its own section for better dead code elimination
+    ${COMPILER_FLAGS}
 
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions> # disable C++ exceptions
     $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti> # disable C++ RTTI (Run-Time Type Information)
@@ -92,11 +98,7 @@ target_compile_options(${PROJECT_NAME}.elf PRIVATE
 target_link_options(${PROJECT_NAME}.elf PRIVATE
     -T${LINKER_SCRIPT}
 
-    -Wl,--gc-sections # enable garbage collection of unused sections to reduce binary size
-    -Wl,-Map=${CMAKE_BINARY_DIR}/${PROJECT_NAME}.map # Generate .map with linker
-
-    --specs=nano.specs # use newlib-nano for smaller footprint
-    --specs=nosys.specs # replace _write, _read, _sbrk functions with stubs
+    ${LINKER_FLAGS}
 )
 
 # ------------------------------------------------------------------------------
@@ -115,17 +117,4 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
     # size
     COMMAND ${CMAKE_SIZE} 
             ${PROJECT_NAME}.elf
-)
-
-# ------------------------------------------------------------------------------
-# Flash target
-# ------------------------------------------------------------------------------
-
-add_custom_target(flash
-    COMMAND JLinkExe
-        -device STM32F072RB
-        -if SWD
-        -speed 4000
-        -autoconnect 1
-        -CommanderScript ${CMAKE_SOURCE_DIR}/scripts/flash.jlink
 )
