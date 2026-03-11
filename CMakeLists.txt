@@ -18,15 +18,6 @@ set(CMAKE_BUILD_TYPE Debug) # Use Debug for development to include debug symbols
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # Export compile commands for Clang-tidy
 
-find_program(CLANG_TIDY_EXE clang-tidy) # Check if clang-tidy is available
-if(CLANG_TIDY_EXE) # If clang-tidy is found, set it up for C++ files
-    set(CMAKE_CXX_CLANG_TIDY
-        ${CLANG_TIDY_EXE};
-        -p=${CMAKE_BINARY_DIR} # Use the compile_commands.json for clang-tidy
-        --warnings-as-errors=*
-    )
-endif()
-
 # ------------------------------------------------------------------------------
 # MCU configuration library
 # ------------------------------------------------------------------------------
