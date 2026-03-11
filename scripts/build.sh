@@ -19,7 +19,7 @@ flash() {
     -if SWD \
     -speed 4000 \
     -autoconnect 1 \
-    -CommanderScript scripts/flash.jlink
+    -CommanderScript scripts/flash_jlink.sh
 }
 
 clean() {
