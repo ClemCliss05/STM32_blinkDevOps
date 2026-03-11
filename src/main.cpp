@@ -1,17 +1,15 @@
-#include "stm32f072xb.h"
+#include "gpio.hpp"
 
-int main()
-{
-    // enable GPIOA clock
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+int main() {
 
-    // PA5 output
-    GPIOA->MODER |= (1 << (5 * 2));
+    gpio::enable_port_a();
+    gpio::set_output(GPIOA, 5);
 
-    while (1)
-    {
-        GPIOA->ODR ^= (1 << 5);
+    while (1) {
 
-        for (volatile int i = 0; i < 500000; i++);
+        gpio::toggle(GPIOA, 5);
+
+        for (volatile int i = 0; i < 500000; i++)
+            ;
     }
 }
