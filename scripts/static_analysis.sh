@@ -14,7 +14,7 @@ cppcheck \
 -Iinclude \
 -Isrc \
 --suppress=missingIncludeSystem \
-src include
+src include \
 2> build/cppcheck-report.txt
 
 echo "Cppcheck finished. Report saved to cppcheck-report.txt"
