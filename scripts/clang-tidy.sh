@@ -12,6 +12,7 @@ FILES=$(find src include -name "*.c" -o -name "*.cpp")
 
 for file in $FILES
 do
+    echo "Linting $file"
     clang-tidy -p build "$file"
 done
 

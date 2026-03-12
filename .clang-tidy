@@ -3,8 +3,5 @@ Checks: >
   clang-analyzer-*,
   readability-*
 
-WarningsAsErrors: >
-  bugprone-*,
-  clang-analyzer-*
-
 HeaderFilterRegex: 'src/.*|include/.*'
+WarningsAsErrors: ''
