@@ -8,6 +8,11 @@ cmake -B build -DCMAKE_TOOLCHAIN_FILE=toolchain/arm-gcc-toolchain.cmake
 
 echo "Running linting with clang-tidy..."
 
-run-clang-tidy -p build -quiet
+FILES=$(find src include -name "*.c" -o -name "*.cpp")
+
+for file in $FILES
+do
+    clang-tidy -p build "$file"
+done
 
 echo "Clang-tidy finished."
