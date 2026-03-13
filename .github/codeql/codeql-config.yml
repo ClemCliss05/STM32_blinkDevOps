@@ -1,0 +1,11 @@
+name: firmware-security-config
+
+queries:
+  - uses: security-extended
+
+paths-ignore:
+  - build/**
+  - Drivers/**
+  - Middlewares/**
+  - third_party/**
+  - tests/**

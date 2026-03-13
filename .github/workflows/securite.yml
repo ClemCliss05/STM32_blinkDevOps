@@ -12,24 +12,37 @@ permissions:
 
 jobs:
   analyze:
-
     runs-on: ubuntu-latest
 
     steps:
 
     - uses: actions/checkout@v4
 
+    - name: Cache CodeQL packs
+      uses: actions/cache@v4
+      with:
+        path: ~/.codeql/packages
+        key: codeql-packs-${{ runner.os }}
+
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: cpp
+        config-file: .github/codeql/codeql-config.yml
 
-    - name: Build project
+    - name: Install toolchain
       run: |
         sudo apt update
         sudo apt install gcc-arm-none-eabi cmake
-        cmake -B build -DCMAKE_TOOLCHAIN_FILE=toolchain/arm-gcc-toolchain.cmake
-        cmake --build build
+
+    - name: Configure build
+      run: |
+        cmake -B build \
+        -DCMAKE_TOOLCHAIN_FILE=toolchain/arm-gcc-toolchain.cmake \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+    - name: Build firmware
+      run: cmake --build build -j4
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
