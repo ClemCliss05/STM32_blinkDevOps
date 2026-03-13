@@ -4,7 +4,9 @@ set -e
 
 echo "Configuring CMake..."
 
-cmake -B build -DCMAKE_TOOLCHAIN_FILE=toolchain/arm-gcc-toolchain.cmake
+cmake -B build \
+-DCMAKE_TOOLCHAIN_FILE=toolchain/arm-gcc-toolchain.cmake \
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
 echo "Running linting with clang-tidy..."
 

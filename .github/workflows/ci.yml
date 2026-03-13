@@ -1,0 +1,67 @@
+name: Firmware CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Cache build directory
+      uses: actions/cache@v4
+      with:
+        path: build
+        key: build-${{ runner.os }}-${{ hashFiles('src/**','include/**','CMakeLists.txt') }}
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install \
+          gcc-arm-none-eabi \
+          cmake \
+          cppcheck \
+          clang-tidy \
+          clang-tools \
+          clang-format
+
+    - name: Check code formatting
+      run: |
+        clang-format -n --Werror $(find src include -name "*.cpp" -o -name "*.hpp")
+
+    - name: Static analysis with cppcheck
+      run: |
+        ./scripts/static_analysis.sh
+
+    - name: Configure CMake
+      run: |
+        cmake -B build \
+        -DCMAKE_TOOLCHAIN_FILE=toolchain/arm-gcc-toolchain.cmake \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+    - name: Run clang-tidy
+      run: |
+        FILES=$(find src include -name "*.c" -o -name "*.cpp")
+        for file in $FILES
+        do
+            clang-tidy -p build "$file"
+        done
+
+    - name: Build firmware
+      run: |
+        cmake --build build -j4
+
+    - name: Upload firmware artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: firmware
+        path: |
+          build/*.elf
+          build/*.bin
+          build/*.hex

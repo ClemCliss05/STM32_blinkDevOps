@@ -28,3 +28,4 @@ codeql/cpp-queries:codeql-suites/cpp-security-extended.qls \
 --output=build/codeql-results.sarif
 
 echo "Analysis finished"
+echo "You can analyse codeql-results.sarif with the SARIF Viewer extension in VSC"
