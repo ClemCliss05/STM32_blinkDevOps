@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.20)
 
 project(STM32_blinkDevOps C CXX ASM)
 
+# Language standards
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # ------------------------------------------------------------------------------
 # Project configuration
 # ------------------------------------------------------------------------------
@@ -36,21 +41,15 @@ target_link_options(mcu_config INTERFACE
 # Firmware target
 # ------------------------------------------------------------------------------
 
-add_executable(${PROJECT_NAME}.elf)
-
-target_link_libraries(${PROJECT_NAME}.elf PRIVATE
-    mcu_config
-)
-
-# ------------------------------------------------------------------------------
-# Source files
-# ------------------------------------------------------------------------------
-
-target_sources(${PROJECT_NAME}.elf PRIVATE
+add_executable(${PROJECT_NAME}.elf
     src/main.cpp
     src/gpio.cpp
     startup/startup_stm32f072xb.s
     Drivers/CMSIS/Device/ST/STM32F0xx/Source/system_stm32f0xx.c
+)
+
+target_link_libraries(${PROJECT_NAME}.elf PRIVATE
+    mcu_config
 )
 
 # ------------------------------------------------------------------------------
